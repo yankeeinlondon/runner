@@ -1,0 +1,32 @@
+---
+- name: Check access_token variable (RUN ONCE)
+  ansible.builtin.assert:
+    that:
+      - access_token is defined
+      - access_token | length > 0
+    fail_msg: "access_token was not found or is using an invalid format."
+  run_once: true
+
+- name: Check github_org variable (RUN ONCE)
+  ansible.builtin.assert:
+    that:
+      - github_org is defined
+    fail_msg: "github_org must be defined when 'runner_scope' is set to 'org'"
+  run_once: true
+  when: (runner_scope == "org")
+
+- name: Check github_account variable (RUN ONCE)
+  ansible.builtin.assert:
+    that:
+      - github_account is defined
+    fail_msg: "github_account is not defined and runner_scope is set to 'repo' where this property is required"
+  run_once: true
+  when: (runner_scope == "repo")
+
+- name: Check github_repo variable (RUN ONCE)
+  ansible.builtin.assert:
+    that:
+      - github_repo is defined
+    fail_msg: "github_repo is not defined and runner_scope is set to 'repo' where this property is required"
+  run_once: true
+  when: (runner_scope == "repo")

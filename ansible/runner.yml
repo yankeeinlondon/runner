@@ -1,0 +1,34 @@
+---
+- hosts: runners
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+    - name: Include Assert tasks
+      ansible.builtin.include_tasks: ./tasks/assert.yml
+      tags:
+        - install
+        - uninstall
+    - name: Collect information on Runner
+      ansible.builtin.include_tasks: ./tasks/collect_info.yml
+      tags:
+        - install
+        - uninstall
+
+  roles:
+    - libraries
+    - tooling
+    - hardening
+
+  tasks:
+    - name: download the runner software
+      ansible.builtin.include_tasks: ./tasks/download_runner.yml
+      # when: runner_state|lower == "started" or runner_state|lower == "stopped"
+      tags:
+        - install
+
+    - name: install the runner software
+      ansible.builtin.include_tasks: ./tasks/install_runner.yml
+      # when: runner_state|lower == "started" or runner_state|lower == "stopped"
+      tags:
+        - install

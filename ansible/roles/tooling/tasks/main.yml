@@ -1,0 +1,106 @@
+---
+- name: Register Nala GPG Key (Debian and Ubuntu)
+  ansible.builtin.apt_key:
+    url: https://deb.volian.org/volian/scar.key
+    state: present
+  when: (ansible_distribution == "Ubuntu" or ansible_distribution == "Debian")
+
+- name: Add Nala sources to apt (Debian and Ubuntu)
+  ansible.builtin.template:
+    src: ../templates/nala.j2
+    dest: /etc/apt/sources.list.d/volian-archive-scar-stable.list
+  when: (ansible_distribution == "Ubuntu" or ansible_distribution == "Debian")
+
+- name: Install Nala and update apt cache (Debian)
+  ansible.builtin.apt:
+    name:
+      - nala-legacy
+    state: present
+    update_cache: true
+  when: (ansible_distribution == "Debian")
+
+- name: Install Nala and update apt cache (Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - nala
+    state: present
+    update_cache: true
+  when: (ansible_distribution == "Ubuntu")
+
+- name: Install neovim for editing
+  ansible.builtin.package:
+    name:
+      - neovim
+      - python2
+      - python3-neovim
+      - python-is-python3
+      - python3-pip
+    state: present
+    update_cache: false
+
+# neovim (at the least) expects this
+- name: Ensure user has a ~/.config directory
+  ansible.builtin.file:
+    path: ${HOME}/.config
+    state: directory
+- name: Ensure user has a ~/.config/nvim directory
+  ansible.builtin.file:
+    path: ${HOME}/.config/nvim
+    state: directory
+
+- name: Put in place good starter Neovim config
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/nvim-lua/kickstart.nvim/master/init.lua
+    dest: ${HOME}/.config/nvim/init.lua
+    mode: "0640"
+
+- name: Add 'v' alias to bashrc to run Neovim
+  ansible.builtin.lineinfile:
+    dest: ${HOME}/.bashrc
+    regexp: "^alias v="
+    line: 'alias v="nvim"'
+    state: present
+
+# - name: Headless Packer install for Neovim
+#   ansible.builtin.command:
+#     command: nvim --headless -c 'autocmd User PackerComplete quitall' -c 'PackerSync'
+#     creates: ~/.config/nvim/lua/packer_compiled.lua
+
+- name: Install htop, lsof, bat and other utils to make life nicer
+  ansible.builtin.package:
+    name:
+      - htop
+      - lsof
+      - bat
+      - curl
+      - wget
+      - gpg
+      - npm
+    state: present
+    update_cache: false
+
+- name: Add 'bat' alias to batcat executable
+  ansible.builtin.lineinfile:
+    dest: ${HOME}/.bashrc
+    regexp: "^alias bat="
+    line: 'alias bat="batcat"'
+    state: present
+
+- name: set aliases to use "nala" over "apt" (Ubuntu & Debian) [1 of 2]
+  ansible.builtin.lineinfile:
+    dest: ${HOME}/.bashrc
+    regexp: "^alias apt-get="
+    line: 'alias apt-get="nala"'
+    state: present
+
+- name: set aliases to use "nala" over "apt" (Ubuntu & Debian) [2 of 2]
+  ansible.builtin.lineinfile:
+    dest: ${HOME}/.bashrc
+    regexp: "^alias apt="
+    line: 'alias apt="nala"'
+    state: present
+
+- name: install pnpm as global executable
+  ansible.builtin.command:
+    cmd: "npm i -g pnpm"
+    creates: /usr/local/bin/pnpm

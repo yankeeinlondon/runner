@@ -1,0 +1,33 @@
+---
+- name: Download runner software
+  ansible.builtin.get_url:
+    url: "{{ runner_download_url }}"
+    dest: "{{ runner_download_filename }}"
+
+- name: Unarchive software
+# - name: Download latest runner software for Linux (x86)
+#   vars:
+#     runner_os: "linux"
+#     runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+#   ansible.builtin.get_url:
+#     url: "{{ runner_download_url }}"
+#     dest: ${HOME}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz
+#   when: (ansible_distribution == "Ubuntu" or ansible_distribution == "Debian" or ansible_distribution == "RedHat" or ansible_distribution == "CentOs")
+
+# - name: Download latest runner software for macOS (x86)
+#   vars:
+#     runner_os: "darwin"
+#     runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+#   ansible.builtin.get_url:
+#     url: "{{ runner_download_url }}"
+#     dest: ${HOME}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz
+#   when: (ansible_os_family == "Darwin")
+
+# - name: Download latest runner software for Windows (x86)
+#   vars:
+#     runner_os: "windows"
+#     runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+#   ansible.builtin.get_url:
+#     url: "{{ runner_download_url }}"
+#     dest: ${HOME}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz
+#   when: (ansible_os_family == "Windows")

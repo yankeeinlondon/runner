@@ -1,0 +1,7 @@
+---
+- hosts: "*"
+  plugin: community.general.proxmox
+  gather_facts: true
+
+  tasks:
+    - name: 

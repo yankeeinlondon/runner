@@ -1,0 +1,30 @@
+---
+ansible_user: "{{ lookup('env', 'ANSIBLE_USER') }}"
+
+# either "repo" or "org"
+runner_scope: "repo"
+runner_version: "2.300.2"
+runner_dir: "_work"
+runner_name: "{{ ansible_hostname }}"
+runner_user: "github"
+runner_version_latest_url: https://api.github.com/repos/actions/runner/releases/latest
+
+architecture_map:
+  amd64: x64
+  x86_64: x64
+  armv7l: arm
+  aarch64: arm64
+runner_arch: "{{ architecture_map[ansible_architecture] }}"
+
+hide_sensitive_logs: yes
+# If found on the server, delete already existing runner service and install it again
+reinstall_runner: no
+
+github_url: "https://github.com"
+github_api_url: "https://api.github.com"
+github_account: "{{ lookup('env', 'GITHUB_ACCT') }}"
+github_repo: "{{ lookup('env', 'GITHUB_REPO') }}"
+github_org: "{{ lookup('env', 'GITHUB_ORG') }}"
+
+# Github Personal Access Token
+access_token: "{{ lookup('env', 'GITHUB_TOKEN') }}"

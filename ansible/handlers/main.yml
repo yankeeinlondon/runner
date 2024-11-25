@@ -1,0 +1,5 @@
+---
+- name: Restart runner service
+  ansible.builtin.service:
+    name: "{{ runner_service }}"
+    state: restarted

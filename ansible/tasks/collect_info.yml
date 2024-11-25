@@ -1,0 +1,61 @@
+---
+- block:
+    - name: Set complete API url for repo runner
+      ansible.builtin.set_fact:
+        github_full_api_url: "{{ github_api_url }}/repos/{{ github_owner | default(github_account) }}/{{ github_repo }}/actions/runners"
+      when: not github_org
+
+    - name: Set complete API url for org runner
+      ansible.builtin.set_fact:
+        github_full_api_url: "{{ github_api_url }}/orgs/{{ github_owner | default(github_account) }}/actions/runners"
+      when: github_org | bool
+
+    - name: Set facts for runner software (Linux)
+      vars:
+        runner_os: "linux"
+      ansible.builtin.set_fact:
+        runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+      when: (ansible_distribution == "Ubuntu" or ansible_distribution == "Debian" or ansible_distribution == "RedHat" or ansible_distribution == "CentOs")
+
+    - name: Set facts for runner software (macOS)
+      vars:
+        runner_os: "darwin"
+      ansible.builtin.set_fact:
+        runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+      when: (ansible_os_family == "Darwin")
+
+    - name: Set facts for runner software (Windows)
+      vars:
+        runner_os: "windows"
+      ansible.builtin.set_fact:
+        runner_download_url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-{{ runner_os }}-{{ runner_arch }}-{{ runner_version }}.tar.gz"
+      when: (ansible_os_family == "Windows")
+
+    - name: Get registration token (RUN ONCE)
+      ansible.builtin.uri:
+        url: "{{ github_full_api_url }}/registration-token"
+        headers:
+          Authorization: "token {{ access_token }}"
+          Accept: "application/vnd.github.v3+json"
+        method: POST
+        status_code: 201
+        force_basic_auth: yes
+      register: registration
+      run_once: true
+
+    - name: Check currently registered runners for repo (RUN ONCE)
+      ansible.builtin.uri:
+        url: "{{ github_full_api_url }}"
+        headers:
+          Authorization: "token {{ access_token }}"
+          Accept: "application/vnd.github.v3+json"
+        method: GET
+        status_code: 200
+        force_basic_auth: yes
+      register: registered_runners
+      run_once: true
+
+    - name: Check service facts
+      ansible.builtin.service_facts:
+
+  check_mode: false
